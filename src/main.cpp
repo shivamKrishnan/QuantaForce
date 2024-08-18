@@ -1,18 +1,45 @@
 #include "raylib.h"
 #include <cmath>
 
-typedef struct VectorEntity2 {
-  float magnitude;
-  float direction;
-} VectorEntity2;
-
-typedef struct Body {
+typedef struct Vector2D {
   float x;
   float y;
+} Vector2D;
+
+typedef struct Body {
+  Vector2D position;
+  Vector2D velocity;
+  Vector2D acceleration;
   float mass;
-  Vector2 velocity;
-  VectorEntity2 acceleration;
 } Body;
+
+void UpdatePhysics(Body *body1, Body *body2, float dt) {
+  float dx = body2->position.x - body1->position.x;
+  float dy = body2->position.y - body1->position.y;
+  float distance = sqrt(pow(dx, 2) + pow(dy, 2));
+
+  if (distance == 0)
+    return;
+
+  float G = 1.0f;
+  float force = (G * body1->mass * body2->mass) / (pow(distance, 2));
+
+  Vector2D direction = {dx / distance, dy / distance};
+  body1->acceleration.x = force / body1->mass * direction.x;
+  body1->acceleration.y = force / body1->mass * direction.y;
+  body2->acceleration.x = -force / body2->mass * direction.x;
+  body2->acceleration.y = -force / body2->mass * direction.y;
+
+  body1->velocity.x += body1->acceleration.x * dt;
+  body1->velocity.y += body1->acceleration.y * dt;
+  body2->velocity.x += body2->acceleration.x * dt;
+  body2->velocity.y += body2->acceleration.y * dt;
+
+  body1->position.x += body1->velocity.x * dt;
+  body1->position.y += body1->velocity.y * dt;
+  body2->position.x += body2->velocity.x * dt;
+  body2->position.y += body2->velocity.y * dt;
+}
 
 int main() {
   const int screenWidth = 800;
@@ -21,66 +48,22 @@ int main() {
   const float r1 = 35;
   const float r2 = 10;
 
-  Body body1 = {200.0f, 120.0f, r1 * 10000, {0, 0}, {0, 0}};
-  Body body2 = {600.0f, 120.0f, r2 * 10000, {0, 0}, {0, 0}};
+  Body body1 = {{200.0f, 200.0f}, {0, 0}, {0, 0}, r1 * 10000};
+  Body body2 = {{600.0f, 300.0f}, {0, -10}, {0, 0}, r2 * 10000};
   const float dt = 0.001f;
 
-  InitWindow(screenWidth, screenHeight, "trash gravity");
+  InitWindow(screenWidth, screenHeight, "Gravity Simulation");
 
   while (!WindowShouldClose()) {
+    UpdatePhysics(&body1, &body2, dt);
+
     BeginDrawing();
-
     ClearBackground(RAYWHITE);
-
-    DrawCircle(body1.x, body1.y, r1, ORANGE);
-    DrawCircle(body2.x, body2.y, r2, RED);
-
-    DrawLineV({body1.x, body1.y},
-              {body1.x + 100 * cos(body1.acceleration.direction),
-               body1.y + 100 * sin(body1.acceleration.direction)},
-              GREEN);
-    DrawLineV({body2.x, body2.y},
-              {body2.x + 100 * cos(body2.acceleration.direction),
-               body2.y + 100 * sin(body2.acceleration.direction)},
-              GREEN);
-
+    DrawCircle(body1.position.x, body1.position.y, r1, ORANGE);
+    DrawCircle(body2.position.x, body2.position.y, r2, RED);
     EndDrawing();
-
-    // update position
-    const float x1 = body1.x;
-    const float x2 = body2.x;
-
-    const float y1 = body1.y;
-    const float y2 = body2.y;
-
-    float distance = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
-
-    float force = (body1.mass * body2.mass) / pow(distance, 2);
-
-    body1.acceleration.magnitude = force / body1.mass;
-    body2.acceleration.magnitude = force / body2.mass;
-
-    body1.acceleration.direction = atan2(y2 - y1, x2 - x1);
-    body2.acceleration.direction = atan2(y1 - y2, x1 - x2);
-
-    body1.velocity.x +=
-        body1.acceleration.magnitude * cos(body1.acceleration.direction) * dt;
-    body1.velocity.y +=
-        body1.acceleration.magnitude * sin(body1.acceleration.direction) * dt;
-
-    body2.velocity.x +=
-        body2.acceleration.magnitude * cos(body2.acceleration.direction) * dt;
-    body2.velocity.y +=
-        body2.acceleration.magnitude * sin(body2.acceleration.direction) * dt;
-
-    body1.x += body1.velocity.x * dt;
-    body1.y += body1.velocity.y * dt;
-
-    body2.x += body2.velocity.x * dt;
-    body2.y += body2.velocity.y * dt;
   }
 
   CloseWindow();
-
   return 0;
 }
