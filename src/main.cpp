@@ -1,14 +1,16 @@
 #include "raylib.h"
 #include <cmath>
 
-typedef struct Body {
+typedef struct Body
+{
   Vector2 position;
   Vector2 velocity;
   Vector2 acceleration;
   float mass;
 } Body;
 
-void UpdatePhysics(Body *body1, Body *body2, float dt) {
+void UpdatePhysics(Body *body1, Body *body2, float dt)
+{
   float dx = body2->position.x - body1->position.x;
   float dy = body2->position.y - body1->position.y;
   float distance = sqrt(pow(dx, 2) + pow(dy, 2));
@@ -36,7 +38,8 @@ void UpdatePhysics(Body *body1, Body *body2, float dt) {
   body2->position.y += body2->velocity.y * dt;
 }
 
-int main() {
+int main()
+{
   const int screenWidth = 800;
   const int screenHeight = 445;
 
@@ -49,7 +52,8 @@ int main() {
 
   InitWindow(screenWidth, screenHeight, "Gravity Simulation");
 
-  while (!WindowShouldClose()) {
+  while (!WindowShouldClose())
+  {
     UpdatePhysics(&body1, &body2, dt);
 
     float dx = body2.position.x - body1.position.x;
