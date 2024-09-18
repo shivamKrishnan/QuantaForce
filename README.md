@@ -4,7 +4,7 @@ A fluid simulation engine written in C++ for Aerodynamics simulations.
 
 ## Setup
 
-1. Install [raylib](https://www.raylib.com/)
+1. Install [raylib](https://raysan5.itch.io/raylib/download/eyJleHBpcmVzIjoxNzI2Njg5ODE0LCJpZCI6ODUzMzF9.lJkb3%2fgFOmsbN1Jhj91dU3S6uWA%3d)
 2. Install chocolatey (if you don't have it already)
    ```powershell
    Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
